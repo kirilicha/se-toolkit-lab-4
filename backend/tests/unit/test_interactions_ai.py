@@ -1,0 +1,20 @@
+"""Curated AI-generated unit tests for interaction filtering logic."""
+
+from app.models.interaction import InteractionLog
+from app.routers.interactions import filter_by_max_item_id
+
+
+def _make_log(id: int, learner_id: int, item_id: int) -> InteractionLog:
+    return InteractionLog(id=id, learner_id=learner_id, item_id=item_id, kind="attempt")
+
+
+def test_ai_filter_excludes_items_above_max() -> None:
+    interactions = [_make_log(1, 1, 1), _make_log(2, 2, 4), _make_log(3, 3, 2)]
+    result = filter_by_max_item_id(interactions=interactions, max_item_id=2)
+    assert [item.id for item in result] == [1, 3]
+
+
+def test_ai_filter_returns_all_for_large_max() -> None:
+    interactions = [_make_log(1, 1, 1), _make_log(2, 2, 2), _make_log(3, 3, 3)]
+    result = filter_by_max_item_id(interactions=interactions, max_item_id=10)
+    assert result == interactions
